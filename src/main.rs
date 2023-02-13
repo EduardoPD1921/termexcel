@@ -16,21 +16,23 @@ fn main() {
     }
 
     let biggests_cells_len_vec = get_vec_with_biggests_cells(&raw_file_vec);
-    let formatted_file_vec = convert_file_into_vec_with_usize(&raw_file_vec);
+    let formatted_file_vec = convert_file_into_vec_with_usize(&raw_file_vec, biggests_cells_len_vec);
 
-    println!("{:?}", biggests_cells_len_vec);
-    println!("{:?}", formatted_file_vec);
+    for cell in formatted_file_vec {
+        println!("{}", cell);
+    }
 }
 
-fn convert_file_into_vec_with_usize(raw_file_vec: &Vec<String>) -> Vec<String> {
+fn convert_file_into_vec_with_usize(raw_file_vec: &Vec<String>, biggests_cells_len: Vec<usize>) -> Vec<String> {
     let mut formatted_cells_vec: Vec<String> = Vec::new();
 
     for l in raw_file_vec {
         let splitted_cells: Vec<&str> = l.split(';').collect();
         let mut formatted_cell_vec: Vec<String> = Vec::new();
 
-        for cell in splitted_cells {
-            formatted_cell_vec.push(format!("{}|", cell));
+        for (index, cell) in splitted_cells.iter().enumerate() {
+            let filled_cell = fill_cell(cell, biggests_cells_len[index]);
+            formatted_cell_vec.push(format!("{}|", filled_cell));
         }
 
         let formatted_cell_slice: Vec<&str> = formatted_cell_vec.iter().map(|str| str.as_str()).collect();
@@ -38,6 +40,14 @@ fn convert_file_into_vec_with_usize(raw_file_vec: &Vec<String>) -> Vec<String> {
         formatted_cells_vec.push(formatted_cell_string);
     }
     formatted_cells_vec
+}
+
+fn fill_cell(cell: &str, cell_target_size: usize) -> String {
+    let mut filled_cell = cell.to_owned();
+    while filled_cell.len() < cell_target_size {
+        filled_cell.push(' ');
+    }
+    filled_cell
 }
 
 fn get_vec_with_biggests_cells(raw_file_vec: &Vec<String>) -> Vec<usize> {
