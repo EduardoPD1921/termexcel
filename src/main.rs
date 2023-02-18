@@ -15,12 +15,20 @@ fn main() {
         raw_file_vec.push(l);
     }
 
-    let biggests_cells_len_vec = get_vec_with_biggests_cells(&raw_file_vec);
-    let formatted_file_vec = convert_file_into_vec_with_usize(&raw_file_vec, biggests_cells_len_vec);
+    let numerated_file_vec = insert_line_numeration(raw_file_vec);
+
+    let biggests_cells_len_vec = get_vec_with_biggests_cells(&numerated_file_vec);
+    let formatted_file_vec = convert_file_into_vec_with_usize(&numerated_file_vec, biggests_cells_len_vec);
 
     for cell in formatted_file_vec {
         println!("{}", cell);
     }
+}
+
+fn insert_line_numeration(raw_file_vec: Vec<String>) -> Vec<String> {
+    raw_file_vec.iter().enumerate().map(|(index, item)| {
+        format!("{}- {}", index + 1, item)
+    }).collect::<Vec<String>>()
 }
 
 fn convert_file_into_vec_with_usize(raw_file_vec: &Vec<String>, biggests_cells_len: Vec<usize>) -> Vec<String> {
