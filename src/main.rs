@@ -1,8 +1,15 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::env;
 
 fn main() {
-    let file = match File::open("excel.csv") {
+    let args: Vec<String> = env::args().collect();
+    let file_path = match args.get(1) {
+        Some(s) => s,
+        None => panic!("Caminho do arquivo não foi inserido.")
+    };
+
+    let file = match File::open(file_path) {
         Ok(f) => f,
         Err(_) => panic!("Erro ao abrir o arquivo.")
     };
