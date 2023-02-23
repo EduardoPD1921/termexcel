@@ -1,17 +1,38 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::env;
+use std::fmt;
+use std::process::exit;
+
+enum FileError {
+    EmptyPath,
+    FileOpenError(std::io::Error)
+}
+
+impl fmt::Display for FileError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            FileError::EmptyPath => write!(f, "Path wasn't given."),
+            FileError::FileOpenError(e) => write!(f, "Fail at open the file: {e}")
+        }
+    }
+}
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let file_path = match args.get(1) {
-        Some(s) => s,
-        None => panic!("Caminho do arquivo não foi inserido.")
+    let file_path = match get_file_path() {
+        Ok(f) => f,
+        Err(e) => {
+            eprintln!("{e}");
+            exit(1);
+        }
     };
 
-    let file = match File::open(file_path) {
+    let file = match open_file(file_path) {
         Ok(f) => f,
-        Err(_) => panic!("Erro ao abrir o arquivo.")
+        Err(e) => {
+            eprintln!("{e}");
+            exit(1);
+        }
     };
 
     let lines = BufReader::new(file).lines();
@@ -30,6 +51,21 @@ fn main() {
     for cell in formatted_file_vec {
         println!("{}", cell);
     }
+}
+
+fn open_file(file_path: String) -> Result<File, FileError> {
+    let file = File::open(file_path).map_err(|e| FileError::FileOpenError(e))?;
+    Ok(file)
+}
+
+fn get_file_path() -> Result<String, FileError> {
+    let args: Vec<String> = env::args().collect();
+    let file_path = match args.get(1) {
+        Some(s) => s,
+        None => return Err(FileError::EmptyPath)
+    };
+
+    Ok(file_path.to_owned())
 }
 
 fn insert_line_numeration(raw_file_vec: Vec<String>) -> Vec<String> {
